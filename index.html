@@ -3,12 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
+  <title>칼로리 탐색기</title>
   <link href='/style.css' rel='stylesheet'>
+  <script defer type="text/javascript" src="/main.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/swiper@11/swiper-bundle.min.css">
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+ <!-- HEADER -->
+<header>
+  <div class="logo">KCAL<span>.KR</span></div>
+  <div class="tagline">음식 칼로리 정보</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">1
+  <div class="hero-eyebrow">// 칼로리 탐색기</div>
+  <h1>먹기 전에<br><em>확인하세요</em></h1>
+  <div class="search-wrap">
+    <input class="search-input" id="searchInput" type="text" placeholder="음식 이름을 검색하세요... (예: 삼겹살, 라면)"/>
+    <button class="search-btn" id="searchBtn">검색</button>
+  </div>
+</section>
+
+<!-- FILTERS -->
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-cat="all">전체</button>
+  <button class="filter-btn" data-cat="한식">🍚 한식</button>
+  <button class="filter-btn" data-cat="중식">🥢 중식</button>
+  <button class="filter-btn" data-cat="일식">🍣 일식</button>
+  <button class="filter-btn" data-cat="양식">🍝 양식</button>
+  <button class="filter-btn" data-cat="패스트푸드">🍔 패스트푸드</button>
+  <button class="filter-btn" data-cat="디저트">🍰 디저트</button>
+  <button class="filter-btn" data-cat="음료">🧃 음료</button>
+  <button class="filter-btn" data-cat="과일/채소">🥗 과일/채소</button>
+</div>
+
+<!-- SECTION HEADER -->
+<div class="section-header">
+  <div class="section-title">검색 결과</div>
+  <div class="result-count" id="resultCount">0</div>
+</div>
+
+<!-- GRID -->
+<div class="grid" id="grid"></div>
+
+<!-- NO RESULT -->
+<div class="no-result" id="noResult">
+  <div class="no-result-emoji">🔍</div>
+  <h3>결과 없음</h3>
+  <p>다른 키워드로 검색해 보세요.</p>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <span class="modal-emoji" id="mEmoji"></span>
+    <div class="modal-cat" id="mCat"></div>
+    <div class="modal-name" id="mName"></div>
+    <div class="modal-sub" id="mSub"></div>
+    <div class="modal-kcal-block">
+      <div>
+        <div class="modal-kcal-label">칼로리</div>
+        <div class="modal-kcal-unit" id="mUnit"></div>
+      </div>
+      <div class="modal-kcal-num" id="mKcal"></div>
+    </div>
+    <div class="modal-macros-title">영양소 구성</div>
+    <div class="modal-macro-row">
+      <div class="modal-macro-name">탄수화물</div>
+      <div class="modal-macro-bar-track"><div class="modal-macro-bar-fill" id="mCarbBar" style="background:#4dffd2;width:0%"></div></div>
+      <div class="modal-macro-val" id="mCarb"></div>
+    </div>
+    <div class="modal-macro-row">
+      <div class="modal-macro-name">단백질</div>
+      <div class="modal-macro-bar-track"><div class="modal-macro-bar-fill" id="mProtBar" style="background:#f4e04d;width:0%"></div></div>
+      <div class="modal-macro-val" id="mProt"></div>
+    </div>
+    <div class="modal-macro-row">
+      <div class="modal-macro-name">지방</div>
+      <div class="modal-macro-bar-track"><div class="modal-macro-bar-fill" id="mFatBar" style="background:#ff6b35;width:0%"></div></div>
+      <div class="modal-macro-val" id="mFat"></div>
+    </div>
+    <div class="modal-tip" id="mTip"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-note">* 칼로리 수치는 평균값이며 조리 방법에 따라 달라질 수 있습니다.</div>
+  <div class="footer-logo">KCAL.KR</div>
+</footer>
+  
 </body>
 </html>
