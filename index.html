@@ -480,8 +480,8 @@
     <div class="issue-badge">구독 설정<br>뉴스레터</div>
   </div>
   <div class="masthead-center">
-    <div class="masthead-label">나만의 뉴스 큐레이션 서비스</div>
-    <div class="masthead-title">뉴스<span>레터</span></div>
+    <div class="masthead-label">원하는 시간에 받아 보는</div>
+    <div class="masthead-title">뉴스<span22>레터</span></div>
     <div class="masthead-date" id="today-date"></div>
   </div>
   <div style="width:80px;"></div>
@@ -594,7 +594,7 @@
     <div class="section-title">비즈니스 제휴를 원하시나요?</div>
     <div class="section-desc">뉴스레터 광고, 콘텐츠 협업 등 다양한 제휴 문의를 기다립니다.</div>
 
-    <form action="https://formspree.io/f/meepnako" method="POST">
+    <form id="partnership-form" action="https://formspree.io/f/meepnako" method="POST">
       <div class="form-row">
         <div class="form-field">
           <label class="form-label">성함 / 회사명</label>
@@ -609,7 +609,7 @@
         <label class="form-label">문의 내용</label>
         <textarea class="form-input" name="message" placeholder="제휴하고 싶은 내용을 상세히 적어주세요." required></textarea>
       </div>
-      <button type="submit" class="btn-primary" style="width: 100%; border-radius: 2px;">문의 보내기</button>
+      <button type="submit" class="btn-primary" id="partnership-btn" style="width: 100%; border-radius: 2px;">문의 보내기</button>
     </form>
 
   </main>
@@ -784,7 +784,7 @@ function updateSchedulePreview() {
 });
 
 // ── 구독 처리 ──
-function handleSubscribe() {
+async function handleSubscribe() {
   const email = document.getElementById('email-input').value.trim();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showToast('올바른 이메일 주소를 입력해주세요', 'error'); return;
@@ -806,6 +806,24 @@ function handleSubscribe() {
 
   showOverlay('뉴스레터 구독을 설정하는 중...', 'AI가 첫 번째 뉴스레터를 준비합니다');
 
+  // Formspree 전송 (운영자 알림용)
+  try {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('type', 'NEWSLETTER_SUBSCRIPTION');
+    formData.append('interests', sub.interests.join(', '));
+    formData.append('schedule', `${sub.freq}일마다 / ${sub.time}`);
+    formData.append('_subject', `새 뉴스레터 구독자: ${email}`);
+
+    await fetch('https://formspree.io/f/meepnako', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    });
+  } catch (err) {
+    console.error('Formspree error:', err);
+  }
+
   setTimeout(() => {
     subscriptions.push(sub);
     localStorage.setItem('newsletter_subs', JSON.stringify(subscriptions));
@@ -816,6 +834,41 @@ function handleSubscribe() {
     document.getElementById('test-section').style.display = 'block';
     updateCountdown(sub);
   }, 1000);
+}
+
+// ── 제휴 문의 처리 ──
+const partnershipForm = document.getElementById('partnership-form');
+if (partnershipForm) {
+  partnershipForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('partnership-btn');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '보내는 중...';
+
+    const formData = new FormData(partnershipForm);
+    formData.append('_subject', `뉴스레터 제휴 문의: ${formData.get('name')}`);
+
+    try {
+      const response = await fetch(partnershipForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        showToast('✅ 문의가 전송되었습니다. 곧 연락드리겠습니다!', 'success');
+        partnershipForm.reset();
+      } else {
+        showToast('❌ 전송에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+      }
+    } catch (err) {
+      showToast('❌ 네트워크 오류가 발생했습니다.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
 }
 
 // ── 구독 목록 렌더링 ──
